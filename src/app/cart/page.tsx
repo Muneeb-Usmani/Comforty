@@ -120,14 +120,14 @@ const Cart = () => {
             </div>
             <div className="flex justify-between mt-5">
               <h2 className="text-sm sm:text-base">
-                Estimated Delivery And Handling
+                Discount
               </h2>
-              <div className="text-sm sm:text-base">$20</div>
+              <div className="text-sm sm:text-base">$0</div>
             </div>
             <div className="flex justify-between mt-5 py-4 border-y-2">
               <div className="text-sm sm:text-base font-medium">Total</div>
               <div className="text-sm sm:text-base font-medium">
-                ${(subtotal + 20).toFixed(2)}
+                ${(subtotal + 0).toFixed(2)}
               </div>
             </div>
             <Link href={"/checkout"}>

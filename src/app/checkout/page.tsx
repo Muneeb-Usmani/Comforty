@@ -3,13 +3,36 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import CheckoutButton from "@/components/checkout/CheckoutButton";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+const checkoutSchema = z.object({
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  address: z.string().optional(),
+  postcode: z.string().optional(),
+  country: z.string().optional(),
+  city: z.string().optional(),
+  phone: z.number().optional(),
+  email: z.string().email("Invalid email address").optional(),
+});
 const Checkout = () => {
   const { cart } = useGlobalContext();
   const [shippingCost, setShippingCost] = useState(0);
+  const [shippingMethod, setShippingMethod] = useState("free");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ resolver: zodResolver(checkoutSchema) });
 
   const handleShippingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setShippingCost(Number(event.target.value));
+    const cost = Number(event.target.value);
+    setShippingCost(cost);
+    setShippingMethod(event.target.id);
   };
 
   const subtotal = cart.reduce(
@@ -32,12 +55,12 @@ const Checkout = () => {
 
   return (
     <section className="bg-white py-8 md:py-16">
-      <form className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+      <form className="mx-auto max-w-screen-xl px-4 2xl:px-0"  onSubmit={handleSubmit((data) => console.log(data))}>
         <div className="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
           <div className="min-w-0 flex-1 space-y-8">
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-900">
-                Shipping Details
+                Billing Details
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
@@ -45,67 +68,87 @@ const Checkout = () => {
                     htmlFor="first_name"
                     className="mb-2 block text-sm font-medium text-gray-900"
                   >
-                    First Name*
+                    First Name
                   </label>
                   <input
                     type="text"
                     id="first_name"
+                    {...register("first_name")}
                     className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900"
                     placeholder="John"
-                    required
                   />
+                  {errors.first_name && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.first_name.message?.toString()}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label
                     htmlFor="last_name"
                     className="mb-2 block text-sm font-medium text-gray-900"
                   >
-                    Last Name*
+                    Last Name
                   </label>
                   <input
                     type="text"
                     id="last_name"
+                    {...register("last_name")}
                     className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900"
                     placeholder="Doe"
-                    required
                   />
+                  {errors.last_name && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.last_name.message?.toString()}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label
                     htmlFor="address"
                     className="mb-2 block text-sm font-medium text-gray-900"
                   >
-                    Address*
+                    Address
                   </label>
                   <input
                     type="text"
                     id="address"
+                    {...register("address")}
                     className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900"
-                    placeholder="Doe"
-                    required
+                    placeholder="123 Main St"
                   />
+                  {errors.address && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.address.message?.toString()}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label
                     htmlFor="postcode"
                     className="mb-2 block text-sm font-medium text-gray-900"
                   >
-                    Post Code*
+                    Post Code
                   </label>
                   <input
                     type="text"
                     id="postcode"
+                    {...register("postcode")}
                     className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900"
                     placeholder="SW1W 0NY"
-                    required
                   />
+                  {errors.postcode && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.postcode.message?.toString()}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label
                     htmlFor="select-country"
                     className="block text-sm font-medium text-gray-900"
                   >
-                    Country*
+                    Country
                   </label>
                   <select
                     id="select-country"
@@ -123,7 +166,7 @@ const Checkout = () => {
                     htmlFor="select-city"
                     className="block text-sm font-medium text-gray-900"
                   >
-                    City*
+                    City
                   </label>
                   <select
                     id="select-city"
@@ -141,30 +184,40 @@ const Checkout = () => {
                     htmlFor="phone"
                     className="mb-2 block text-sm font-medium text-gray-900"
                   >
-                    Phone Number*
+                    Phone Number
                   </label>
                   <input
                     type="text"
                     id="phone"
+                    {...register("phone")}
                     className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900"
                     placeholder="+92 1234567890"
-                    required
                   />
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.phone.message?.toString()}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label
                     htmlFor="email"
                     className="mb-2 block text-sm font-medium text-gray-900"
                   >
-                    Email Address*
+                    Email Address
                   </label>
                   <input
                     type="text"
                     id="email"
+                    {...register("email")}
                     className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900"
                     placeholder="youremail@xyz.com"
-                    required
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.email.message?.toString()}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -287,12 +340,11 @@ const Checkout = () => {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="flex w-full items-center justify-center rounded-lg bg-[#029FAE] px-5 py-2.5 text-sm font-medium text-white"
-            >
-              Proceed to Payment
-            </button>
+            <CheckoutButton
+              cartItems={cart}
+              shippingMethod={shippingMethod}
+              shippingCost={shippingCost}
+            />
           </div>
         </div>
       </form>
